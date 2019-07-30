@@ -365,9 +365,11 @@ public class MusicControlModule extends ReactContextBaseJavaModule implements Co
         if(info.hasKey("elapsedTime")) {
             elapsedTime = (long)(info.getDouble("elapsedTime") * 1000);
             updateTime = SystemClock.elapsedRealtime();
+            emitter.elapsedTime = elapsedTime;
         } else {
             elapsedTime = state.getPosition();
             updateTime = state.getLastPositionUpdateTime();
+            emitter.elapsedTime = elapsedTime;
         }
 
         pb.setState(pbState, elapsedTime, speed, updateTime);
