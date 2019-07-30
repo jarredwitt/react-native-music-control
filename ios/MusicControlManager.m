@@ -91,7 +91,7 @@ RCT_EXPORT_METHOD(updatePlayback:(NSDictionary *) originalDetails)
     NSMutableDictionary *mediaDict = [[NSMutableDictionary alloc] initWithDictionary: center.nowPlayingInfo];
 
     center.nowPlayingInfo = [self update:mediaDict with:details andSetDefaults:false];
-
+    
     // Playback state is separated in 11+
     if (@available(iOS 11.0, *)) {
         if ([state isEqual:MEDIA_STATE_PLAYING]) {
@@ -275,8 +275,28 @@ RCT_EXPORT_METHOD(observeAudioInterruptions:(BOOL) observe){
 - (void)onPreviousTrack:(MPRemoteCommandEvent*)event { [self sendEvent:@"previousTrack"]; }
 - (void)onSeekForward:(MPRemoteCommandEvent*)event { [self sendEvent:@"seekForward"]; }
 - (void)onSeekBackward:(MPRemoteCommandEvent*)event { [self sendEvent:@"seekBackward"]; }
-- (void)onSkipBackward:(MPRemoteCommandEvent*)event { [self sendEvent:@"skipBackward"]; }
-- (void)onSkipForward:(MPRemoteCommandEvent*)event { [self sendEvent:@"skipForward"]; }
+- (void)onSkipBackward:(MPRemoteCommandEvent*)event { [self skip:@"skipBackward"]; }
+- (void)onSkipForward:(MPRemoteCommandEvent*)event { [self skip:@"skipForward"]; }
+
+- (void)skip:(NSString*)eventName {
+    MPNowPlayingInfoCenter *center = [MPNowPlayingInfoCenter defaultCenter];
+    
+    if (center.nowPlayingInfo == nil) {
+        return;
+    }
+    
+    NSString *time = center.nowPlayingInfo[@"MPNowPlayingInfoPropertyElapsedPlaybackTime"];
+    
+    float t = [time floatValue];
+    
+    if ([eventName isEqualToString:@"skipForward"]) {
+        t = t + 15;
+    } else if ([eventName isEqualToString:@"skipBackward"]) {
+        t = t - 15;
+    }
+    
+    [self sendEventWithValue:eventName withValue: [NSString stringWithFormat:@"%f", t]];
+}
 
 - (NSArray<NSString *> *)supportedEvents {
     return @[@"RNMusicControlEvent"];
