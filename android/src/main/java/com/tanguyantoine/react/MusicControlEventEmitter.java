@@ -29,6 +29,8 @@ public class MusicControlEventEmitter {
 
     private final ReactApplicationContext context;
 
+    public long elapsedTime;
+
     MusicControlEventEmitter(ReactApplicationContext context) {
         this.context = context;
     }
@@ -38,11 +40,11 @@ public class MusicControlEventEmitter {
     }
 
     public void onPause() {
-        stopForegroundService();
         sendEvent(context, "pause", null);
     }
 
     public void onStop() {
+        stopForegroundService();
         sendEvent(context, "stop", null);
     }
 
@@ -59,11 +61,11 @@ public class MusicControlEventEmitter {
     }
 
     public void onFastForward() {
-        sendEvent(context, "skipForward", null);
+        sendEvent(context, "skipForward", (elapsedTime / 1000D) + 15);
     }
 
     public void onRewind() {
-        sendEvent(context, "skipBackward", null);
+        sendEvent(context, "skipBackward", (elapsedTime / 1000D) - 15);
     }
 
     public void onSetRating(float rating) {
